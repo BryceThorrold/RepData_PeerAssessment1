@@ -6,24 +6,25 @@ output:
 ---
 
 
-
+``` {r setup, warning=FALSE}
+````
 
 ## Loading and preprocessing the data
-```{r loaddata}
+```{r loaddata, results="hide"}
 library(dplyr)
 stepdata <- read.csv("./activity.csv", sep = ",", header = TRUE)
 stepdata %>% mutate(stepdata, date=as.Date(date, format = ("%Y-%m-%d")))
 ```
 
 ## What is mean total number of steps taken per day?
-```{r stepsday}
+```{r stepsday, results="hide"}
 dailydata <- stepdata%>%
   group_by(date) %>%
   summarise(total = sum(steps, na.rm = TRUE))
 hist(dailydata$total)
 ```
 
-``` {r meanmedium}
+``` {r meanmedium, results="hide"}
 meansteps <- mean(dailydata$total, na.rm = TRUE)
 mediansteps <- median(dailydata$total, na.rm = TRUE)
 ```
@@ -32,14 +33,14 @@ The mean number of steps is `r meansteps`.
 The median number of steps is `r mediansteps`
 
 ## What is the average daily activity pattern?
-```{r stepstime}
+```{r stepstime, results='hide'}
 intervalmean <- stepdata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
   hist(dailydata$total)
 ```
 
-```{r timeseries}
+```{r timeseries, results='hold'}
 plot(intervalmean$interval, intervalmean$total, type = "l")
 hightime <- intervalmean[which.max(intervalmean$total),]
 ```
@@ -47,7 +48,23 @@ hightime <- intervalmean[which.max(intervalmean$total),]
 The time of day with most average steps are `r hightime[,1]`
 
 ## Imputing missing values
+```{r NAs}
+noofNA <- sum(is.na(stepdata))
 
+```
+
+The number of NA's is:   `r noofNA`  
+
+```{r imputemean}
+fillNAwithMean <- function(x){
+    na_index <- which(is.na(x))        
+    mean_x <- mean(x, na.rm=T)
+    x[na_index] <- mean_x
+    return(x)
+}
+
+(imputedstepdata <- apply(stepdata,2,fillNAwithMean))
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
