@@ -32,8 +32,19 @@ The mean number of steps is `r meansteps`.
 The median number of steps is `r mediansteps`
 
 ## What is the average daily activity pattern?
+```{r stepstime}
+intervalmean <- stepdata%>%
+  group_by(interval) %>%
+  summarise(total = mean(steps, na.rm = TRUE))
+  hist(dailydata$total)
+```
 
+```{r timeseries}
+plot(intervalmean$interval, intervalmean$total, type = "l")
+hightime <- intervalmean[which.max(intervalmean$total),]
+```
 
+The time of day with most average steps are `r hightime[,1]`
 
 ## Imputing missing values
 
