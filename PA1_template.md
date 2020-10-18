@@ -103,7 +103,7 @@ weekenddata <- subset(imputeddata,day == "Saturday" | day == "Sunday")
 weekintervalmean <- weekdata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
-plot(weekintervalmean$interval, weekintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK", xlab = "Time of Day", ylab = "Average number of steps")
+plot(weekintervalmean$interval, weekintervalmean$total, type = "l", main = "Average Number of Steps per time of day duringg the WEEK", xlab = "Time of Day", ylab = "Average number of steps")
 ```
 
 ![](PA1_template_files/figure-html/weekdays-1.png)<!-- -->
