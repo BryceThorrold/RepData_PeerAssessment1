@@ -10,18 +10,18 @@ output:
 ````
 
 ## Loading and preprocessing the data
-```{r loaddata, results="hide"}
+```{r loaddata, results="hide", warning=FALSE, message=FALSE}
 library(dplyr)
 stepdata <- read.csv("./activity.csv", sep = ",", header = TRUE)
 stepdata %>% mutate(stepdata, date=as.Date(date, format = ("%Y-%m-%d")))
 ```
 
 ## What is mean total number of steps taken per day?
-```{r stepsday, results="hide"}
+```{r stepsday, results="hide", warning=FALSE, message=FALSE}
 dailydata <- stepdata%>%
   group_by(date) %>%
   summarise(total = sum(steps, na.rm = TRUE))
-hist(dailydata$total, main = "Total Number of steps per day")
+hist(dailydata$total, main = "Steps per day frequency", xlab = "Steps")
 ```
 
 ``` {r meanmedium, results="hide"}
@@ -33,29 +33,24 @@ The mean number of steps is `r meansteps`.
 The median number of steps is `r mediansteps`
 
 ## What is the average daily activity pattern?
-```{r stepstime, results='hide'}
+```{r stepstime, results='hide', warning=FALSE, message=FALSE}
 intervalmean <- stepdata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
-  hist(intervalmean$total, main = "Average Number of Steps per time of day")
-```
-
-```{r timeseries, results='hide'}
-plot(intervalmean$interval, intervalmean$total, type = "l")
+plot(intervalmean$interval, intervalmean$total, type = "l", main = "Average Number of Steps per time of day", xlab = "Time of Day", ylab = "Average Steps")
 hightime <- intervalmean[which.max(intervalmean$total),]
 ```
 
 The time of day with most average steps are `r hightime[,1]`
 
 ## Imputing missing values
-```{r NAs}
+```{r NAs, results="hide"}
 noofNA <- sum(is.na(stepdata))
-
 ```
 
 The number of NA's is:   `r noofNA`  
 
-```{r imputemean}
+```{r imputemean, results = "hide", warning=FALSE, message=FALSE}
 numrows <- nrow(stepdata)
 counter <- 1
 imputeddata <- stepdata
@@ -71,7 +66,7 @@ while (counter <= numrows) {
 dailydataimp <- imputeddata%>%
   group_by(date) %>%
   summarise(total = sum(steps))
-hist(dailydataimp$total, main = "Total Number of steps per day after imputation")
+hist(dailydataimp$total, main = "Total Number of steps per day after imputation", xlab = "Steps per day")
 
 meanstepsimp <- mean(dailydataimp$total)
 medianstepsimp <- median(dailydataimp$total)
@@ -82,7 +77,7 @@ The median number of steps after imputation is `r medianstepsimp`.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r weekdays}
+```{r weekdays, results="hide", warning=FALSE, message=FALSE}
 imputeddata$day <- weekdays(as.Date(imputeddata$date))
 weekdata <- subset(imputeddata,day == "Monday" | day == "Tuesday" | day == "Wednesday" | day == "Thursday" | day == "Friday")
 weekenddata <- subset(imputeddata,day == "Saturday" | day == "Sunday")
@@ -91,13 +86,13 @@ weekenddata <- subset(imputeddata,day == "Saturday" | day == "Sunday")
 weekintervalmean <- weekdata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
-plot(weekintervalmean$interval, weekintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK")
+plot(weekintervalmean$interval, weekintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK", xlab = "Time of Day", ylab = "Average number of steps")
 
   
 weekendintervalmean <- weekenddata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
-plot(weekendintervalmean$interval, weekendintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK-END")
+plot(weekendintervalmean$interval, weekendintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK-END", xlab = "Time of Day", ylab = "Average number of steps")
 
 ```
 
