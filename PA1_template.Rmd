@@ -21,7 +21,7 @@ stepdata %>% mutate(stepdata, date=as.Date(date, format = ("%Y-%m-%d")))
 dailydata <- stepdata%>%
   group_by(date) %>%
   summarise(total = sum(steps, na.rm = TRUE))
-hist(dailydata$total)
+hist(dailydata$total, main = "Total Number of steps per day")
 ```
 
 ``` {r meanmedium, results="hide"}
@@ -37,10 +37,10 @@ The median number of steps is `r mediansteps`
 intervalmean <- stepdata%>%
   group_by(interval) %>%
   summarise(total = mean(steps, na.rm = TRUE))
-  hist(dailydata$total)
+  hist(intervalmean$total, main = "Average Number of Steps per time of day")
 ```
 
-```{r timeseries, results='hold'}
+```{r timeseries, results='hide'}
 plot(intervalmean$interval, intervalmean$total, type = "l")
 hightime <- intervalmean[which.max(intervalmean$total),]
 ```
@@ -56,15 +56,48 @@ noofNA <- sum(is.na(stepdata))
 The number of NA's is:   `r noofNA`  
 
 ```{r imputemean}
-fillNAwithMean <- function(x){
-    na_index <- which(is.na(x))        
-    mean_x <- mean(x, na.rm=T)
-    x[na_index] <- mean_x
-    return(x)
+numrows <- nrow(stepdata)
+counter <- 1
+imputeddata <- stepdata
+meansteps <- mean(imputeddata$steps, na.rm = T)
+while (counter <= numrows) {
+  if (is.na(imputeddata[counter,1])){
+    imputeddata[counter,1] <- meansteps
+  }
+  counter <- counter + 1
 }
 
-(imputedstepdata <- apply(stepdata,2,fillNAwithMean))
+
+dailydataimp <- imputeddata%>%
+  group_by(date) %>%
+  summarise(total = sum(steps))
+hist(dailydataimp$total, main = "Total Number of steps per day after imputation")
+
+meanstepsimp <- mean(dailydataimp$total)
+medianstepsimp <- median(dailydataimp$total)
 ```
+
+The mean number of steps after imputation is `r meanstepsimp`.  
+The median number of steps after imputation is `r medianstepsimp`.  
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r weekdays}
+imputeddata$day <- weekdays(as.Date(imputeddata$date))
+weekdata <- subset(imputeddata,day == "Monday" | day == "Tuesday" | day == "Wednesday" | day == "Thursday" | day == "Friday")
+weekenddata <- subset(imputeddata,day == "Saturday" | day == "Sunday")
+
+
+weekintervalmean <- weekdata%>%
+  group_by(interval) %>%
+  summarise(total = mean(steps, na.rm = TRUE))
+plot(weekintervalmean$interval, weekintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK")
+
+  
+weekendintervalmean <- weekenddata%>%
+  group_by(interval) %>%
+  summarise(total = mean(steps, na.rm = TRUE))
+plot(weekendintervalmean$interval, weekendintervalmean$total, type = "l", main = "Average Number of Steps per time of day during the WEEK-END")
+
+```
+
